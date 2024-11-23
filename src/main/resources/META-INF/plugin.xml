@@ -8,14 +8,13 @@
     <name>Demo</name>
 
     <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
-    <vendor email="support@yourcompany.com" url="https://www.yourcompany.com">YourCompany</vendor>
+    <vendor email="emk161278@gmail.com" url="https://www.j8kin.com">j8kin</vendor>
 
     <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
          Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> tag.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
     <description><![CDATA[
-    Enter short description for your plugin here.<br>
-    <em>most HTML tags may be used</em>
+    QA Automation IDE Services test assignment
   ]]></description>
 
     <!-- Product and plugin compatibility requirements.
@@ -27,4 +26,17 @@
     <extensions defaultExtensionNs="com.intellij">
 
     </extensions>
+    <actions>
+        <action id="org.qatest.plugin.demo.PluginVersionAction" class="org.qatest.plugin.demo.PluginVersionAction"
+                text="Plugin Version" description="Display the installed version of the Kotlin plugin">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+<!--            <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt DIVIDE"/>-->
+        </action>
+        <action id="org.qatest.plugin.demo.DisplayAllGutterIcons" class="org.qatest.plugin.demo.DisplayAllGutterIcons"
+                text="DisplayAllGutterIcons"
+                description="Display all Gutter Icons present in the currently opened file">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+<!--            <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt DIVIDE"/>-->
+        </action>
+    </actions>
 </idea-plugin>

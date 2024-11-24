@@ -24,14 +24,15 @@
     <!-- Extension points defined by the plugin.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
     <extensions defaultExtensionNs="com.intellij">
-
+        <toolWindow id="UI Info Tool" secondary="true" icon="AllIcons.Toolwindows.WebToolWindow" anchor="right"
+                    factoryClass="org.qatest.plugin.demo.QaAssignmentTestToolWindowFactory"/>
     </extensions>
     <actions>
-        <action id="org.qatest.plugin.demo.PluginVersionAction" class="org.qatest.plugin.demo.PluginVersionAction"
-                text="Plugin Version" description="Display the installed version of the Kotlin plugin">
-            <add-to-group group-id="ToolsMenu" anchor="last"/>
+<!--        <action id="org.qatest.plugin.demo.QaAssignmentTestToolWindowFactory" class="org.qatest.plugin.demo.QaAssignmentTestToolWindowFactory"-->
+<!--                text="Plugin Version" description="Display the installed version of the Kotlin plugin">-->
+<!--            <add-to-group group-id="ToolsMenu" anchor="last"/>-->
 <!--            <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt DIVIDE"/>-->
-        </action>
+<!--        </action>-->
         <action id="org.qatest.plugin.demo.DisplayAllGutterIcons" class="org.qatest.plugin.demo.DisplayAllGutterIcons"
                 text="DisplayAllGutterIcons"
                 description="Display all Gutter Icons present in the currently opened file">

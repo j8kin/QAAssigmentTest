@@ -1,23 +1,23 @@
 package org.qatest.plugin.demo
 
-import com.intellij.ide.plugins.PluginManagerCore
-import com.intellij.openapi.editor.ex.EditorGutterComponentEx
-import com.intellij.openapi.editor.impl.EditorImpl
-import com.intellij.openapi.extensions.PluginId
-import com.intellij.openapi.fileEditor.FileEditorManager
-import com.intellij.openapi.fileEditor.impl.FileEditorManagerImpl
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.wm.FocusWatcher
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
+import com.intellij.openapi.wm.impl.IdeFrameImpl
 import com.intellij.ui.content.ContentFactory
-import com.intellij.ui.table.JBTable
+import java.awt.AWTEvent
 import java.awt.BorderLayout
-import javax.swing.*
-import javax.swing.table.DefaultTableModel
+import java.awt.Component
+import java.awt.event.ActionEvent
+import javax.swing.JPanel
+import javax.swing.JLabel
+import javax.swing.JButton
+import javax.swing.SwingUtilities
 
 internal class QaAssignmentTestToolWindowFactory : ToolWindowFactory, DumbAware {
+
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
         val toolWindowContent = UiInfoToolWindowContent(project, toolWindow)
         val content = ContentFactory.getInstance().createContent(toolWindowContent.contentPanel, "", false)
@@ -25,82 +25,34 @@ internal class QaAssignmentTestToolWindowFactory : ToolWindowFactory, DumbAware 
         toolWindow.contentManager.addContent(content)
     }
 
-    private class UiInfoToolWindowContent(val project: Project, toolWindow: ToolWindow) {
+    private inner class UiInfoToolWindowContent(val project: Project, toolWindow: ToolWindow) {
         val contentPanel: JPanel = JPanel()
+        private val pluginView = PluginCreateViewPanel()
         private val cUIInfo = JLabel()
 
         init {
-            updateUiInfoMainPanel(toolWindow)
-        }
-
-        fun getActiveFile(): VirtualFile? {
-            return (FileEditorManager.getInstance(project) as FileEditorManagerImpl).currentFile
-        }
-
-        fun gutterModelTable(row: Int, col: Int): DefaultTableModel = object : DefaultTableModel(row, col) {
-            //  Returning the Icon class for all cells
-            override fun getColumnClass(column: Int): Class<*> {
-                return Icon::class.java
-            }
-        }
-
-        fun createPluginVersionPanel(): JPanel {
-            val pluginPanel = JPanel()
-            val pluginVersionLabel = JLabel()
-            val pluginVer = PluginManagerCore.getPlugin(PluginId.getId("org.qatest.plugin.demo"))?.version
-            pluginVersionLabel.text = "Plugin version: $pluginVer"
-            pluginPanel.add(pluginVersionLabel)
-            return pluginPanel
-        }
-        fun createGutterPanel(): JPanel {
-            val pluginPanel = JPanel()
-            pluginPanel.add(createGutterList())
-            return pluginPanel
-        }
-
-        fun createGutterList(): JBTable {
-            val fileName = getActiveFile()
-            val listOfGutterIcons = arrayListOf<Icon>()
-
-            if (fileName != null) {
-                val editor = (FileEditorManager.getInstance(project) as FileEditorManagerImpl).getSelectedTextEditor()
-                val gutter = editor?.gutter as EditorGutterComponentEx
-                for (i in 0..(editor as EditorImpl).visibleLineCount) {
-                    if (gutter.getGutterRenderers(i).isNotEmpty()) {
-                        val cGutters = gutter.getGutterRenderers(i)
-                        cGutters.forEach { cGutter ->
-                            listOfGutterIcons.add(cGutter.icon)
+            val comp = (IdeFrameImpl.activeFrame as IdeFrameImpl).component
+            if (comp != null) {
+                object : FocusWatcher() {
+                    override fun focusedComponentChanged(focusedComponent: Component?, cause: AWTEvent?) {
+                        if (focusedComponent != null && SwingUtilities.isDescendingFrom(
+                                focusedComponent,
+                                toolWindow.component
+                            )
+                        ) {
+                            //refresh table here
+                            cUIInfo.text = "Focus Gained"
                         }
                     }
-                }
+                }.install(comp)
             }
-
-            if (listOfGutterIcons.isEmpty()) {
-                val model = DefaultTableModel(1, 1)
-                if (fileName == null) {
-                    model.setValueAt("There are no opened files", 0, 0)
-                } else {
-                    model.setValueAt("File: $fileName don't have Gutters", 0, 0)
-                }
-                val gutterTable = JBTable(model)
-                gutterTable.setRowHeight(0,25)
-                gutterTable.autoResizeMode = JBTable.AUTO_RESIZE_OFF
-                return gutterTable
-            }
-            val model = gutterModelTable(1, listOfGutterIcons.size)
-            listOfGutterIcons.forEachIndexed { idx, icon ->
-                model.setValueAt(icon, 0, idx) //todo update to have 3-4 icons on Row or row width = 25-30
-            }
-            val gutterTable = JBTable(model)
-            gutterTable.setRowHeight(0,40)
-            gutterTable.autoResizeMode = JBTable.AUTO_RESIZE_OFF
-            return gutterTable
+            updateUiInfoMainPanel(toolWindow, null)
         }
 
         fun createControlsPanel(toolWindow: ToolWindow): JPanel {
             val controlsPanel = JPanel()
             val refreshButton = JButton("Refresh")
-            refreshButton.addActionListener { updateUiInfoMainPanel(toolWindow) }
+            refreshButton.addActionListener { e: ActionEvent -> updateUiInfoMainPanel(toolWindow, e) }
             controlsPanel.add(refreshButton)
             val hideToolWindowButton = JButton("Hide")
             hideToolWindowButton.addActionListener { toolWindow.hide(null) }
@@ -108,10 +60,13 @@ internal class QaAssignmentTestToolWindowFactory : ToolWindowFactory, DumbAware 
             return controlsPanel
         }
 
-        fun updateUiInfoMainPanel(toolWindow: ToolWindow) {
+        fun updateUiInfoMainPanel(toolWindow: ToolWindow, event: ActionEvent?) {
             contentPanel.removeAll()
-            contentPanel.add(createPluginVersionPanel(), BorderLayout.PAGE_START)
-            contentPanel.add(createGutterPanel(), BorderLayout.CENTER)
+
+            pluginView.createView(project).components.forEach { component ->
+                contentPanel.add(component)
+            }
+
             contentPanel.add(createControlsPanel(toolWindow), BorderLayout.CENTER)
             contentPanel.validate()
             contentPanel.repaint()

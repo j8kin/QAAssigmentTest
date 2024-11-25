@@ -28,16 +28,18 @@
                     factoryClass="org.qatest.plugin.demo.QaAssignmentTestToolWindowFactory"/>
     </extensions>
     <actions>
-<!--        <action id="org.qatest.plugin.demo.QaAssignmentTestToolWindowFactory" class="org.qatest.plugin.demo.QaAssignmentTestToolWindowFactory"-->
-<!--                text="Plugin Version" description="Display the installed version of the Kotlin plugin">-->
-<!--            <add-to-group group-id="ToolsMenu" anchor="last"/>-->
-<!--            <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt DIVIDE"/>-->
-<!--        </action>-->
-        <action id="org.qatest.plugin.demo.DisplayAllGutterIcons" class="org.qatest.plugin.demo.DisplayAllGutterIcons"
+        <action id="org.qatest.plugin.demo.QaAssignmentActionDialog" class="org.qatest.plugin.demo.QaAssignmentActionDialog"
                 text="DisplayAllGutterIcons"
                 description="Display all Gutter Icons present in the currently opened file">
             <add-to-group group-id="ToolsMenu" anchor="last"/>
-<!--            <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt DIVIDE"/>-->
+            <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt DIVIDE"/>
         </action>
     </actions>
+
+    <applicationListeners>
+        <listener
+                class="org.qatest.plugin.demo.IdeFocusLister"
+                topic="com.intellij.openapi.editor.ex.FocusChangeListener"/>
+    </applicationListeners>
+
 </idea-plugin>

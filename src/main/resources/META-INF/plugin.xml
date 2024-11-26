@@ -32,8 +32,14 @@
                 text="DisplayAllGutterIcons"
                 description="Display all Gutter Icons present in the currently opened file">
             <add-to-group group-id="ToolsMenu" anchor="last"/>
+<!--            <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt DIVIDE"/>-->
+        </action>
+        <action id="org.qatest.plugin.demo.QaAssignmentTestAction3" class="org.qatest.plugin.demo.QaAssignmentTestAction3"
+                text="QA AssignmentTest Action 3" description="Display information about the currently selected UI Component">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
             <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt DIVIDE"/>
         </action>
+
     </actions>
 
     <applicationListeners>

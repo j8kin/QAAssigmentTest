@@ -25,21 +25,27 @@
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
     <actions>
         <action id="org.qatest.plugin.demo.QaAssignmentTestAction1"
-                class="org.qatest.plugin.demo.QaAssignmentTestAction1" text="QaAssignmentTestAction1"
+                class="org.qatest.plugin.demo.QaAssignmentTestAction1"
+                text="QaAssignmentTestAction1"
                 description="Display the installed version of the Kotlin plugin">
-            <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt MULTIPLY"/>
-        </action>
-        <action id="org.qatest.plugin.demo.QaAssignmentTestAction3" class="org.qatest.plugin.demo.QaAssignmentTestAction3"
-                text="QA AssignmentTest Action 3" description="Display information about the currently selected UI Component">
             <add-to-group group-id="ToolsMenu" anchor="last"/>
             <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt DIVIDE"/>
         </action>
 
-        <action id="org.qatest.plugin.demo.QaAssignmentActionDialog" class="org.qatest.plugin.demo.QaAssignmentActionDialog"
-                text="DisplayAllGutterIcons"
+        <action id="org.qatest.plugin.demo.QaAssignmentTestAction2"
+                class="org.qatest.plugin.demo.QaAssignmentTestAction2"
+                text="QaAssignmentTestAction2"
                 description="Display all Gutter Icons present in the currently opened file">
             <add-to-group group-id="ToolsMenu" anchor="last"/>
-            <!--            <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt DIVIDE"/>-->
+            <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt MULTIPLY"/>
+        </action>
+
+        <action id="org.qatest.plugin.demo.QaAssignmentTestAction3"
+                class="org.qatest.plugin.demo.QaAssignmentTestAction3"
+                text="QA AssignmentTest Action 3"
+                description="Display information about the currently selected UI Component">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt BACK_SLASH"/>
         </action>
     </actions>
 

@@ -12,24 +12,24 @@ class QaAssignmentTestAction3 : AnAction() {
         return ActionUpdateThread.BGT
     }
 
-    override fun actionPerformed(event: AnActionEvent) {
-        val selectedElement = event.getData(CommonDataKeys.NAVIGATABLE)
+    override fun actionPerformed(e: AnActionEvent) {
+        val selectedElement = e.getData(CommonDataKeys.NAVIGATABLE)
         val message = if (selectedElement != null) {
             "Selected UI Component:\n$selectedElement"
         } else {
             "No selected UI Component"
         }
         Messages.showMessageDialog(
-            event.project,
+            e.project,
             message,
-            event.presentation.text,
+            e.presentation.text,
             Messages.getInformationIcon()
         )
     }
 
-    override fun update(event: AnActionEvent) {
+    override fun update(e: AnActionEvent) {
         // Set the availability based on whether a project is open
-        val project = event.project
-        event.presentation.isEnabledAndVisible = project != null
+        val project = e.project
+        e.presentation.isEnabledAndVisible = project != null
     }
 }

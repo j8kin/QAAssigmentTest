@@ -23,16 +23,11 @@
 
     <!-- Extension points defined by the plugin.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
-    <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="UI Info Tool" secondary="true" icon="AllIcons.Toolwindows.WebToolWindow" anchor="right"
-                    factoryClass="org.qatest.plugin.demo.QaAssignmentTestToolWindowFactory"/>
-    </extensions>
     <actions>
-        <action id="org.qatest.plugin.demo.QaAssignmentActionDialog" class="org.qatest.plugin.demo.QaAssignmentActionDialog"
-                text="DisplayAllGutterIcons"
-                description="Display all Gutter Icons present in the currently opened file">
-            <add-to-group group-id="ToolsMenu" anchor="last"/>
-<!--            <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt DIVIDE"/>-->
+        <action id="org.qatest.plugin.demo.QaAssignmentTestAction1"
+                class="org.qatest.plugin.demo.QaAssignmentTestAction1" text="QaAssignmentTestAction1"
+                description="Display the installed version of the Kotlin plugin">
+            <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt MULTIPLY"/>
         </action>
         <action id="org.qatest.plugin.demo.QaAssignmentTestAction3" class="org.qatest.plugin.demo.QaAssignmentTestAction3"
                 text="QA AssignmentTest Action 3" description="Display information about the currently selected UI Component">
@@ -40,12 +35,12 @@
             <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt DIVIDE"/>
         </action>
 
+        <action id="org.qatest.plugin.demo.QaAssignmentActionDialog" class="org.qatest.plugin.demo.QaAssignmentActionDialog"
+                text="DisplayAllGutterIcons"
+                description="Display all Gutter Icons present in the currently opened file">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+            <!--            <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt DIVIDE"/>-->
+        </action>
     </actions>
-
-    <applicationListeners>
-        <listener
-                class="org.qatest.plugin.demo.IdeFocusLister"
-                topic="com.intellij.openapi.editor.ex.FocusChangeListener"/>
-    </applicationListeners>
 
 </idea-plugin>

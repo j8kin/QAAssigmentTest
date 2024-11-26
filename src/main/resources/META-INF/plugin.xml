@@ -24,29 +24,35 @@
     <!-- Extension points defined by the plugin.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
     <actions>
-        <action id="org.qatest.plugin.demo.QaAssignmentTestAction1"
-                class="org.qatest.plugin.demo.QaAssignmentTestAction1"
-                text="QaAssignmentTestAction1"
-                description="Display the installed version of the Kotlin plugin">
-            <add-to-group group-id="ToolsMenu" anchor="last"/>
-            <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt DIVIDE"/>
-        </action>
+        <group id="org.qatest.plugin.demo.QaAssignmentTest"
+               text="QaAssignmentTest"
+               popup="true">
+            <add-to-group
+                    group-id="ToolsMenu"
+                    anchor="after"
+                    relative-to-action="org.qatest.plugin.demo.QaAssignmentTest"/>
 
-        <action id="org.qatest.plugin.demo.QaAssignmentTestAction2"
-                class="org.qatest.plugin.demo.QaAssignmentTestAction2"
-                text="QaAssignmentTestAction2"
-                description="Display all Gutter Icons present in the currently opened file">
-            <add-to-group group-id="ToolsMenu" anchor="last"/>
-            <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt MULTIPLY"/>
-        </action>
+            <action id="org.qatest.plugin.demo.Action1"
+                    class="org.qatest.plugin.demo.QaAssignmentTestAction1"
+                    text="Action1 (Display Version)"
+                    description="Display the installed version of the Kotlin plugin">
+                <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt DIVIDE"/>
+            </action>
 
-        <action id="org.qatest.plugin.demo.QaAssignmentTestAction3"
-                class="org.qatest.plugin.demo.QaAssignmentTestAction3"
-                text="QA AssignmentTest Action 3"
-                description="Display information about the currently selected UI Component">
-            <add-to-group group-id="ToolsMenu" anchor="last"/>
-            <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt BACK_SLASH"/>
-        </action>
+            <action id="org.qatest.plugin.demo.Action2"
+                    class="org.qatest.plugin.demo.QaAssignmentTestAction2"
+                    text="Action2 (Display Gutters)"
+                    description="Display all Gutter Icons present in the currently opened file">
+                <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt MULTIPLY"/>
+            </action>
+
+            <action id="org.qatest.plugin.demo.Action3"
+                    class="org.qatest.plugin.demo.QaAssignmentTestAction3"
+                    text="Action3 (Display Active Component UI Info)"
+                    description="Display information about the currently selected UI Component">
+                <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt BACK_SLASH"/>
+            </action>
+        </group>
     </actions>
 
 </idea-plugin>

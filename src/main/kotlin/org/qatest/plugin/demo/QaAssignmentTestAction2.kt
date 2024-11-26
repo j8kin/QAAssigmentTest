@@ -7,29 +7,26 @@ import com.intellij.openapi.editor.impl.EditorImpl
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.impl.FileEditorManagerImpl
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.DialogBuilder
 import com.intellij.openapi.ui.Messages
-import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.ui.table.JBTable
-import javax.swing.Icon
-import javax.swing.JComponent
-import javax.swing.JLabel
-import javax.swing.table.DefaultTableModel
+import javax.swing.*
+import javax.swing.JOptionPane.INFORMATION_MESSAGE
 
-class QaAssignmentTestAction2: AnAction() {
+class QaAssignmentTestAction2 : AnAction() {
     override fun actionPerformed(e: AnActionEvent) {
         val project = e.project
         if (project != null) {
-            val dialog = DialogBuilder()
-            dialog.title(e.presentation.text)
-            dialog.setCenterPanel(createGutterView(project))
-            dialog.show()
-        }
-        else {
+            JOptionPane.showMessageDialog(
+                null,
+                createGutterView(project),
+                e.presentation.text,
+                INFORMATION_MESSAGE
+            )
+        } else {
             Messages.showMessageDialog(
                 "There are no active project",
                 e.presentation.text,
-                Messages.getInformationIcon())
+                Messages.getInformationIcon()
+            )
         }
     }
 
@@ -38,6 +35,7 @@ class QaAssignmentTestAction2: AnAction() {
 
         val editor = (FileEditorManager.getInstance(project) as FileEditorManagerImpl).getSelectedTextEditor()
         val gutter = editor?.gutter as EditorGutterComponentEx
+
         for (i in 0..(editor as EditorImpl).visibleLineCount) {
             if (gutter.getGutterRenderers(i).isNotEmpty()) {
                 val cGutters = gutter.getGutterRenderers(i)
@@ -47,22 +45,6 @@ class QaAssignmentTestAction2: AnAction() {
             }
         }
         return listOfGutterIcons
-    }
-
-    private fun pluginGutterIcons(gutterIcons: List<Icon>): JBTable {
-        val model = object : DefaultTableModel(1, gutterIcons.size) {
-            //  Returning the Icon class for all cells
-            override fun getColumnClass(column: Int): Class<*> {
-                return Icon::class.java
-            }
-        }
-        gutterIcons.forEachIndexed { idx, icon ->
-            model.setValueAt(icon, 0, idx) //todo update to have 3-4 icons on Row or row width = 25-30
-        }
-        val gutterTable = JBTable(model)
-        gutterTable.setRowHeight(0, 40)
-        gutterTable.autoResizeMode = JBTable.AUTO_RESIZE_OFF
-        return gutterTable
     }
 
     private fun createGutterView(project: Project): JComponent {
@@ -78,6 +60,12 @@ class QaAssignmentTestAction2: AnAction() {
             label.text = "File: $fileName has no gutters"
             return label
         }
-        return pluginGutterIcons(listOfGutterIcons)
+
+        val gutterIconsPanel = JPanel()
+
+        listOfGutterIcons.forEach { icon ->
+            gutterIconsPanel.add(JLabel(icon))
+        }
+        return gutterIconsPanel
     }
 }

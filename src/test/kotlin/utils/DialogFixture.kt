@@ -24,7 +24,7 @@ class DialogFixture(
 
     companion object {
         @JvmStatic
-        fun byTitle(title: String) = byXpath("title $title", "//div[@title='$title' and @class='MyDialog']")
+        fun byTitle(title: String) = byXpath("title $title", "//div[@title='$title' and (@class='MyDialog' or @class='JDialog')]")
     }
 
     val title: String

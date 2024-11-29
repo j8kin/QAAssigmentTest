@@ -2,12 +2,14 @@ package org.qatest.plugin.demo
 
 import com.intellij.remoterobot.RemoteRobot
 import com.intellij.remoterobot.fixtures.ActionButtonFixture
+import com.intellij.remoterobot.fixtures.GutterIcon
 import com.intellij.remoterobot.fixtures.JLabelFixture
 import com.intellij.remoterobot.search.locators.byXpath
 import com.intellij.remoterobot.steps.CommonSteps
 import com.intellij.remoterobot.stepsProcessing.step
 import com.intellij.remoterobot.utils.keyboard
 import com.intellij.remoterobot.utils.waitFor
+import org.assertj.swing.core.MouseButton
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
 import org.qatest.plugin.demo.utils.*
@@ -24,7 +26,24 @@ class QaAssignmentTestPluginTestProjectOpen {
         @BeforeAll
         fun startUp() {
             remoteRobot = RemoteRobot("http://localhost:8082")
-            createCommandLineApp()
+
+            with(remoteRobot) {
+                welcomeFrame {
+                    UiTestSharedSteps(remoteRobot).createNewCommandLineProject()
+                }
+                idea {
+                    // wait till project opened and indexed
+                    waitFor(ofMinutes(3)) { isDumbMode().not() }
+                    step("Select Main.java") {
+                        with(projectViewTree) {
+                            findText("Main").doubleClick() // open Main.java if it is not open
+                        }
+                        with(textEditor()) {
+                            waitFor(ofSeconds(20)) { gutter.getIcons().size >= 2 } // Main.java should have at least 2 Gutters
+                        }
+                    }
+                }
+            }
         }
 
         /**
@@ -36,78 +55,26 @@ class QaAssignmentTestPluginTestProjectOpen {
         fun closeProject() {
             CommonSteps(remoteRobot).closeProject()
         }
-
-        private fun createCommandLineApp() = with(remoteRobot) {
-//            val sharedSteps = UiTestSharedSteps(this)
-
-            welcomeFrame {
-                createNewProjectLink.click()
-                dialog("New Project") {
-                    findText("Java").click()
-                    checkBox("Add sample code").select()
-                    button("Create").click()
-                }
-            }
-            idea {
-                // wait till project opened and indexed
-                waitFor(ofMinutes(3)) { isDumbMode().not() }
-                waitFor(ofSeconds(20)) {
-                    button(byXpath("//div[@class='TrafficLightButton']")).hasText("Analyzing...").not()
-                }
-
-//                step("Create App file") {
-//                    with(projectViewTree) {
-//                        if (hasText("src").not()) {
-//                            findText(projectName).doubleClick()
-//                            waitFor { hasText("src") }
-//                        }
-//                        findText("src").click(MouseButton.RIGHT_BUTTON)
-//                    }
-//                    actionMenu("New").click()
-//                    actionMenuItem("Java Class").click()
-//                    keyboard { enterText("App"); enter() }
-//                }
-//            with(textEditor()) {
-//                step("Write a code") {
-//                    Thread.sleep(1_000)
-//                    editor.findText("App").click()
-//                    keyboard {
-//                        key(VK_END)
-//                        enter()
-//                    }
-//                    sharedSteps.autocomplete("main")
-//                    sharedSteps.autocomplete("sout")
-//                    keyboard { enterText("\""); enterText("Hello from UI test") }
-//                }
-//                step("Launch application") {
-//                    waitFor(ofSeconds(20)) {
-//                        button(byXpath("//div[@class='TrafficLightButton']")).hasText("Analyzing...").not()
-//                    }
-//                    menuBar.select("Build", "Build Project")
-//                    waitFor { gutter.getIcons().isNotEmpty() }
-//                    gutter.getIcons().first { it.description.contains("run.svg") }.click()
-//                    this@idea.find<CommonContainerFixture>(
-//                        byXpath("//div[@class='HeavyWeightWindow']"), ofSeconds(4)
-//                    ).button(byXpath("//div[@disabledicon='execute.svg']"))
-//                        .click()
-//                }
-//            }
-//
-//            val consoleLocator = byXpath("ConsoleViewImpl", "//div[@class='ConsoleViewImpl']")
-//            step("Wait for Console appears") {
-//                waitFor(ofMinutes(1)) { findAll<ContainerFixture>(consoleLocator).isNotEmpty() }
-//            }
-//            step("Check the message") {
-//                waitFor(ofMinutes(1)) { find<ContainerFixture>(consoleLocator).hasText("Hello from UI test") }
-//            }
-            }
-        }
     }
 
     @BeforeEach
     fun checkProjectIsOpen() = with(remoteRobot) {
         idea {
+            // wait till project opened and indexed
+            waitFor(ofMinutes(3)) { isDumbMode().not() }
             Assertions.assertNotNull(projectName)
+            step("Select Main.java") {
+                with(projectViewTree) {
+                    if (hasText("Main").not()) {
+                        findText("src").doubleClick()
+                        waitFor { hasText("src") }
+                    }
+                    findText("Main").doubleClick() // open Main.java if it is not open
+                }
+                with(textEditor()) {
+                    waitFor(ofSeconds(20)) { gutter.getIcons().size >= 2 } // Main.java should have at least 2 Gutters
+                }
+            }
         }
     }
 
@@ -154,23 +121,151 @@ class QaAssignmentTestPluginTestProjectOpen {
         }
     }
 
+
+    @Test
+    fun testPluginAction2ToolMenu() = with(remoteRobot) {
+        idea {
+            step("Get existing Gutters") {
+                with(textEditor()) {
+                    waitFor(ofSeconds(20)) { gutter.getIcons().size >= 2 } // Main.java should have at least 2 Gutters
+                }
+            }
+            step("Open dialog: QaAssignmentTestAction2 via Tool Menu") {
+                // verify that dialog is available from Tool-> QaAssignmentTest -> Action1 (Display Version)
+                menuBar.select("Tools", "QaAssignmentTest", "Action2 (Display Gutters)")
+                dialog("Action2 (Display Gutters)") {
+                    val listOfIcons =
+                        findAll<JLabelFixture>(byXpath("//div[@name='OptionPane.body']//div[@class='JLabel']"))
+                    Assertions.assertNotNull(listOfIcons)
+                    Assertions.assertTrue(listOfIcons.isNotEmpty())
+                }
+            }
+        }
+    }
+
     /**
      * precondition: IntelliJ create Java project with Main.java
      *                 which contains 3 Gutters: 2 "Start execution" and 1 breakpoint
      */
     @Test
     fun testPluginAction2() = with(remoteRobot) {
+        var listOfGutters: List<GutterIcon>? = null
         idea {
-            step("Select main.java") {
-
+            step("Get existing Gutters") {
+                with(textEditor()) {
+                    waitFor(ofSeconds(20)) { gutter.getIcons().size >= 2 } // Main.java should have at least 2 Gutters
+                    listOfGutters = gutter.getIcons()
+                }
             }
-            step("Open dialog: QaAssignmentTestAction1") {
+            step("Open dialog: QaAssignmentTestAction2") {
                 keyboard { hotKey(VK_CONTROL, VK_ALT, VK_MULTIPLY) }
                 dialog("Action2 (Display Gutters)") {
-                    val listOfIcons = findAll<JLabelFixture>(byXpath("//div[@name='OptionPane.body']//div[@class='JPanel']"))
-                    Assertions.assertNotNull(listOfIcons)
+                    val listOfIcons =
+                        findAll<JLabelFixture>(byXpath("//div[@name='OptionPane.body']//div[@class='JLabel']"))
+                    checkGutters(listOfGutters!!, listOfIcons)
                 }
             }
         }
+    }
+
+    @Test
+    fun testPluginAction2ThreeGutterInRow() = with(remoteRobot) {
+        var listOfGutters: List<GutterIcon>? = null
+        var listOfIcons: List<JLabelFixture>? = null
+        idea {
+            step("Get existing Gutters") {
+                with(textEditor()) {
+                    waitFor(ofSeconds(20)) { gutter.getIcons().size >= 2 } // Main.java should have at least 2 Gutters
+                    Assertions.assertTrue(gutter.getIcons().size >= 2)
+                }
+            }
+            step("Add breakpoint and bookmark on line with void main() function") {
+                with(textEditor()) {
+                    editor.findText("static").click()
+                    keyboard { hotKey(VK_CONTROL, VK_F8) } // set breakpoint
+                    keyboard { hotKey(VK_CONTROL, VK_SHIFT, VK_3) } // set bookmark (3)
+
+                    listOfGutters = gutter.getIcons()
+                }
+            }
+            step("Open dialog: QaAssignmentTestAction2") {
+                keyboard { hotKey(VK_CONTROL, VK_ALT, VK_MULTIPLY) }
+                dialog("Action2 (Display Gutters)") {
+                    listOfIcons =
+                        findAll<JLabelFixture>(byXpath("//div[@name='OptionPane.body']//div[@class='JLabel']"))
+
+                    // close dialog to be able to remove breakpoint and bookmark to avoid unexpected case dependency
+                    closeDialog()
+                }
+            }
+            step("Cleanup Additional Icons to avoid case dependency") {
+                with(textEditor()) {
+                    editor.findText("main").click()
+                    keyboard { hotKey(VK_CONTROL, VK_F8) } // set breakpoint
+                    keyboard { hotKey(VK_CONTROL, VK_SHIFT, VK_3) } // set bookmark (3)
+                }
+            }
+            step("Verify list of Icons in QaAssignmentTestAction2") {
+                checkGutters(listOfGutters!!, listOfIcons!!)
+            }
+        }
+    }
+
+    @Test
+    fun testPluginAction2NoGutters() = with(remoteRobot) {
+        idea {
+            step("Create noGutter.txt file which contains no Gutters") {
+                with(projectViewTree) {
+                    if (hasText("src").not()) {
+                        findText(projectName).doubleClick()
+                        waitFor { hasText("src") }
+                    }
+                    findText("src").click(MouseButton.RIGHT_BUTTON)
+                }
+                actionMenu("New").click()
+                actionMenuItem("File").click()
+                keyboard { enterText("noGutter.txt"); enter() }
+            }
+            var messageText: String? = null
+            step("Open dialog: QaAssignmentTestAction2") {
+                keyboard { hotKey(VK_CONTROL, VK_ALT, VK_MULTIPLY) }
+                dialog("Action2 (Display Gutters)") {
+                    messageText = findText { (text) -> text.contains("File: ") }.text
+
+                    closeDialog()
+                }
+            }
+            step("Close noGutter.txt to avoid case dependency") {
+                keyboard { hotKey(VK_CONTROL, VK_F4) }
+            }
+            step("Verify Action2 dialog text") {
+                Assertions.assertNotNull(messageText)
+                Assertions.assertTrue(messageText!!.contains("noGutter.txt has no gutters"))
+            }
+        }
+    }
+
+    @Test
+    fun testPluginAction2NoOpenedFiles() = with(remoteRobot) {
+        step("Close Main.java") {
+            keyboard { hotKey(VK_CONTROL, VK_F4) }
+        }
+        step("Open dialog: QaAssignmentTestAction2") {
+            keyboard { hotKey(VK_CONTROL, VK_ALT, VK_MULTIPLY) }
+            idea {
+                dialog("Action2 (Display Gutters)") {
+                    val messageText = findText { (text) -> text.contains("There are no opened project files") }
+                    Assertions.assertNotNull(messageText)
+                    Assertions.assertEquals("There are no opened project files", messageText.text)
+                }
+            }
+        }
+    }
+
+    private fun checkGutters(expected: List<GutterIcon>, actual: List<JLabelFixture>) {
+        Assertions.assertNotNull(actual)
+
+        Assertions.assertEquals(expected.size, actual.size)
+//        Assertions.assertIterableEquals(listOfGutters,listOfIcons)
     }
 }

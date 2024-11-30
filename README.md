@@ -11,4 +11,5 @@ Create a custom plugin for IntelliJ IDEA version 2024.3 using Kotlin
 Due to PC slowness hotkeys are added to each plugin Action. UI Tests mostly use hotkeys to open related Plugin Action Dialogs. 
 Three UI tests are using Tool Menu to open Action Dialog to make sure that plugin dialogs are accessible from Tool Menu.
 
-All three dialogs were added into Tool Menu as the latest menu as part of SubMenu "QaAssignmentTest": 
+All three dialogs were added into Tool Menu as the latest menu as part of SubMenu "QaAssignmentTest":
+![Tools->QaAssignmentTest->Action(1,2,3)](docs/toolmenu.png)

@@ -15,8 +15,8 @@ However, three UI tests utilize the Tools menu to open action dialogs to ensure 
 All three dialogs have been added to the Tools menu as the last items under the submenu "QaAssignmentTest":
 ![Tools->QaAssignmentTest->Action(1,2,3)](docs/toolmenu.png)
 
-## Launching
-Due to PC slowness, I'm unable to run and test. That is why I suggest first starting the local IDE server with:
+## Test Launching
+Due to PC slowness, I'm unable to run and test in one command. That is why I suggest first starting the local IDE server with:
 `./gradlew clean runIdeForUiTests &`
 
 From the project root folder, and after the IDE Welcome Screen appears, run the following command in a separate terminal from the project root folder:

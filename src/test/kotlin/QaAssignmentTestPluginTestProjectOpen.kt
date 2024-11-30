@@ -1,6 +1,5 @@
 package org.qatest.plugin.demo
 
-import com.intellij.ide.plugins.PluginManagerCore
 import com.intellij.remoterobot.RemoteRobot
 import com.intellij.remoterobot.fixtures.ActionButtonFixture
 import com.intellij.remoterobot.fixtures.GutterIcon
@@ -38,6 +37,10 @@ class QaAssignmentTestPluginTestProjectOpen {
                     waitFor(ofMinutes(3)) { isDumbMode().not() }
                     step("Select Main.java") {
                         with(projectViewTree) {
+                            if (hasText("Main").not()) {
+                                findText("src").doubleClick()
+                                waitFor { hasText("src") }
+                            }
                             findText("Main").doubleClick() // open Main.java if it is not open
                         }
                         with(textEditor()) {
@@ -332,6 +335,7 @@ class QaAssignmentTestPluginTestProjectOpen {
     @Test
     fun testPluginAction3SelectProjectTreeElement() = with(remoteRobot) {
         idea {
+            val project = projectName
             step("Select 'src' folder in Project Tree view") {
                 with(projectViewTree) {
                     if (hasText("src").not()) {
@@ -359,7 +363,7 @@ class QaAssignmentTestPluginTestProjectOpen {
                     }
                     Assertions.assertEquals("Selected UI Component:", messageText.retrieveData().textDataList[0].text)
                     Assertions.assertTrue(folderPathText.startsWith("PsiDirectory:"))
-                    Assertions.assertTrue(folderPathText.endsWith("\\untitled\\src"))
+                    Assertions.assertTrue(folderPathText.endsWith("\\$project\\src"))
                 }
             }
         }
@@ -369,20 +373,7 @@ class QaAssignmentTestPluginTestProjectOpen {
     fun testPluginAction3SelectEditorUiComponent() = with(remoteRobot) {
         idea {
             step("Select ui component in editor") {
-                with(textEditor()) {
-                    // empty java project generated with such code:
-                    // for (int i = 1; i <= 5; i++) {
-                    // trying to select i++
-//                    editor.findText("i\\+\\+").click()
-                    keyboard { hotKey(VK_CONTROL, VK_G) }
-                    keyboard { enterText("10:33"); enter() }
-                    closeDialog()
-//                    dialog("Go to Line:Column") {
-//                        val gotoLineEditTextControl = find<JTextFieldFixture>(byXpath("//div[@class='1MyTextField']"))
-//                        gotoLineEditTextControl.text = "[10:33]"
-//                        find<ActionButtonFixture>(byXpath("//div[@text='OK']")).click()
-//                    }
-                }
+                UiTestSharedSteps(remoteRobot).goToLineAndColumn(10,33)
             }
             step("Open Action3 (Display Active Component UI Info) via Tool Menu") {
                 keyboard { hotKey(VK_CONTROL, VK_ALT, VK_BACK_SLASH) }
@@ -397,5 +388,4 @@ class QaAssignmentTestPluginTestProjectOpen {
             }
         }
     }
-
 }

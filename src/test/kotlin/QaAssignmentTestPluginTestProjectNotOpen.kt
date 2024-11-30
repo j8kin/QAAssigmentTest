@@ -1,6 +1,5 @@
 package org.qatest.plugin.demo
 
-import com.intellij.ide.plugins.PluginManagerCore
 import com.intellij.remoterobot.RemoteRobot
 import com.intellij.remoterobot.fixtures.ActionButtonFixture
 import com.intellij.remoterobot.search.locators.byXpath

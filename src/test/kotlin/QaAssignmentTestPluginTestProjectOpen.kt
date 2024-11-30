@@ -319,4 +319,74 @@ class QaAssignmentTestPluginTestProjectOpen {
             }
         }
     }
+
+    @Test
+    fun testPluginAction3SelectProjectTreeElement() = with(remoteRobot) {
+        idea {
+            step("Select 'src' folder in Project Tree view") {
+                with(projectViewTree) {
+                    if (hasText("src").not()) {
+                        findText(projectName).doubleClick()
+                        waitFor { hasText("src") }
+                    }
+                    findText("src").click(MouseButton.LEFT_BUTTON) // select 'src' folder
+                }
+            }
+            step("Open Action3 (Display Active Component UI Info)") {
+                keyboard { hotKey(VK_CONTROL, VK_ALT, VK_BACK_SLASH) }
+                dialog("Action3 (Display Active Component UI Info)") {
+                    val messageText = find<JTextFieldFixture>(byXpath("//div[contains(@visible_text, 'Selected')]"), ofSeconds(2))
+                    Assertions.assertNotNull(messageText)
+                    Assertions.assertTrue(messageText.retrieveData().textDataList.size >= 3)
+                    // folder path could be pretty long and that is why it could be split on 2 and moe lines like:
+                    //
+                    // PsiDirectory: /my/super/long/path/to/project/
+                    // folder/in/project/tree/view
+                    //
+                    // that is why concatenate them in one line and then verify
+                    var folderPathText = ""
+                    for (i in 2..<messageText.retrieveData().textDataList.size) {
+                        folderPathText = "$folderPathText${messageText.retrieveData().textDataList[i].text}"
+                    }
+                    Assertions.assertEquals("Selected UI Component:", messageText.retrieveData().textDataList[0].text)
+                    Assertions.assertTrue(folderPathText.startsWith("PsiDirectory:"))
+                    Assertions.assertTrue(folderPathText.endsWith("\\untitled\\src"))
+                }
+            }
+        }
+    }
+
+    @Test
+    fun testPluginAction3SelectEditorUiComponent() = with(remoteRobot) {
+        idea {
+            step("Select ui component in editor") {
+                with(textEditor()) {
+                    // empty java project generated with such code:
+                    // for (int i = 1; i <= 5; i++) {
+                    // trying to select i++
+//                    editor.findText("i\\+\\+").click()
+                    keyboard { hotKey(VK_CONTROL, VK_G) }
+                    keyboard { enterText("10:33"); enter() }
+                    closeDialog()
+//                    dialog("Go to Line:Column") {
+//                        val gotoLineEditTextControl = find<JTextFieldFixture>(byXpath("//div[@class='1MyTextField']"))
+//                        gotoLineEditTextControl.text = "[10:33]"
+//                        find<ActionButtonFixture>(byXpath("//div[@text='OK']")).click()
+//                    }
+                }
+            }
+            step("Open Action3 (Display Active Component UI Info) via Tool Menu") {
+                keyboard { hotKey(VK_CONTROL, VK_ALT, VK_BACK_SLASH) }
+                dialog("Action3 (Display Active Component UI Info)") {
+                    val messageText = find<JTextFieldFixture>(byXpath("//div[contains(@visible_text, 'Selected')]"), ofSeconds(2))
+                    Assertions.assertNotNull(messageText)
+                    Assertions.assertEquals(3, messageText.retrieveData().textDataList.size)
+                    Assertions.assertEquals("Selected UI Component:", messageText.retrieveData().textDataList[0].text)
+                    // second line contains empty line with invisible character that is why do not verifying it
+                    Assertions.assertEquals("PsiLocalVariable:i", messageText.retrieveData().textDataList[2].text)
+                }
+            }
+        }
+    }
+
 }

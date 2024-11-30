@@ -1,7 +1,7 @@
 # QA Automation IDE Services test assignment
 ## Objective
 Create a custom plugin for IntelliJ IDEA version 2024.3 using Kotlin
-## Taks
+## Tasks
 1. Implement the following three actions, ensuring that they are accessible from the `Tools` dropdown menu.
 1.1 Action 1: Display the installed version of the Kotlin plugin.
 1.2 Action 2: Display all Gutter Icons present in the currently opened file.

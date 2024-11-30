@@ -4,6 +4,7 @@ import com.intellij.remoterobot.RemoteRobot
 import com.intellij.remoterobot.fixtures.ActionButtonFixture
 import com.intellij.remoterobot.fixtures.GutterIcon
 import com.intellij.remoterobot.fixtures.JLabelFixture
+import com.intellij.remoterobot.fixtures.JTextFieldFixture
 import com.intellij.remoterobot.search.locators.byXpath
 import com.intellij.remoterobot.steps.CommonSteps
 import com.intellij.remoterobot.stepsProcessing.step
@@ -92,6 +93,9 @@ class QaAssignmentTestPluginTestProjectOpen {
         // if dialog is already closed or not opened then "OK" button not found
     }
 
+    /***********************************************************************/
+    /** QA Assignment Test: Action 1                                      **/
+    /***********************************************************************/
     @Test
     fun testPluginAction1() = with(remoteRobot) {
         idea {
@@ -121,7 +125,9 @@ class QaAssignmentTestPluginTestProjectOpen {
         }
     }
 
-
+    /***********************************************************************/
+    /** QA Assignment Test: Action 2                                      **/
+    /***********************************************************************/
     @Test
     fun testPluginAction2ToolMenu() = with(remoteRobot) {
         idea {
@@ -267,5 +273,50 @@ class QaAssignmentTestPluginTestProjectOpen {
 
         Assertions.assertEquals(expected.size, actual.size)
 //        Assertions.assertIterableEquals(listOfGutters,listOfIcons)
+    }
+
+    /***********************************************************************/
+    /** QA Assignment Test: Action 3                                      **/
+    /***********************************************************************/
+    @Test
+    fun testPluginAction3ToolMenu() = with(remoteRobot) {
+        idea {
+            step("Select main function in editor") {
+                with(textEditor()) {
+                    editor.findText("main").click()
+                }
+            }
+            step("Open Action3 (Display Active Component UI Info) via Tool Menu") {
+                // verify that dialog is available from Tool-> QaAssignmentTest -> Action3 (Display Active Component UI Info)
+                menuBar.select("Tools", "QaAssignmentTest", "Action3 (Display Active Component UI Info)")
+                dialog("Action3 (Display Active Component UI Info)") {
+                    val messageText = find<JTextFieldFixture>(byXpath("//div[contains(@visible_text, 'Selected')]"), ofSeconds(2))
+                    Assertions.assertNotNull(messageText)
+                    Assertions.assertEquals(3, messageText.retrieveData().textDataList.size)
+                    Assertions.assertEquals("Selected UI Component:", messageText.retrieveData().textDataList[0].text)
+                    // second line contains empty line with invisible character that is why do not verifying it
+                    Assertions.assertEquals("PsiMethod:main", messageText.retrieveData().textDataList[2].text)
+                }
+            }
+        }
+    }
+
+    @Test
+    fun testPluginAction3NoComponentSelected() = with(remoteRobot) {
+        idea {
+            step("Goto non ui-component line '{'") {
+                with(textEditor()) {
+                    editor.findText("{").click()
+                }
+            }
+            step("Open Action3 (Display Active Component UI Info)") {
+                keyboard { hotKey(VK_CONTROL, VK_ALT, VK_BACK_SLASH) }
+                dialog("Action3 (Display Active Component UI Info)") {
+                    val messageText = findText { (text) -> text.contains("No selected UI Component") }
+                    Assertions.assertNotNull(messageText)
+                    Assertions.assertEquals("No selected UI Component", messageText.text)
+                }
+            }
+        }
     }
 }

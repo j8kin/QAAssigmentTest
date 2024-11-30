@@ -8,16 +8,14 @@ import com.intellij.openapi.ui.Messages
 
 class QaAssignmentTestAction1 : AnAction() {
     override fun actionPerformed(e: AnActionEvent) {
-        var pluginVersion = PluginManagerCore.getPlugin(PluginId.getId("org.qatest.plugin.demo"))?.version
+        var pluginVersion = PluginManagerCore.getPlugins().first { plugin -> plugin.name == "Kotlin" }.version
         pluginVersion = if (pluginVersion == null) {
-            "No plugin version"
+            "No Kotlin plugin installed"
         } else {
-            "Plugin version: $pluginVersion"
+            "Kotlin Plugin version: $pluginVersion"
         }
         Messages.showMessageDialog(
-            pluginVersion,
-            e.presentation.text,
-            Messages.getInformationIcon()
+            pluginVersion, e.presentation.text, Messages.getInformationIcon()
         )
     }
 }

@@ -302,7 +302,8 @@ class QaAssignmentTestPluginTestProjectOpen {
                 // verify that dialog is available from Tool-> QaAssignmentTest -> Action3 (Display Active Component UI Info)
                 menuBar.select("Tools", "QaAssignmentTest", "Action3 (Display Active Component UI Info)")
                 dialog("Action3 (Display Active Component UI Info)") {
-                    val messageText = find<JTextFieldFixture>(byXpath("//div[contains(@visible_text, 'Selected')]"), ofSeconds(2))
+                    val messageText =
+                        find<JTextFieldFixture>(byXpath("//div[contains(@visible_text, 'Selected')]"), ofSeconds(2))
                     Assertions.assertNotNull(messageText)
                     Assertions.assertEquals(3, messageText.retrieveData().textDataList.size)
                     Assertions.assertEquals("Selected UI Component:", messageText.retrieveData().textDataList[0].text)
@@ -348,7 +349,8 @@ class QaAssignmentTestPluginTestProjectOpen {
             step("Open Action3 (Display Active Component UI Info)") {
                 keyboard { hotKey(VK_CONTROL, VK_ALT, VK_BACK_SLASH) }
                 dialog("Action3 (Display Active Component UI Info)") {
-                    val messageText = find<JTextFieldFixture>(byXpath("//div[contains(@visible_text, 'Selected')]"), ofSeconds(2))
+                    val messageText =
+                        find<JTextFieldFixture>(byXpath("//div[contains(@visible_text, 'Selected')]"), ofSeconds(2))
                     Assertions.assertNotNull(messageText)
                     Assertions.assertTrue(messageText.retrieveData().textDataList.size >= 3)
                     // folder path could be pretty long and that is why it could be split on 2 and moe lines like:
@@ -373,12 +375,16 @@ class QaAssignmentTestPluginTestProjectOpen {
     fun testPluginAction3SelectEditorUiComponent() = with(remoteRobot) {
         idea {
             step("Select ui component in editor") {
-                UiTestSharedSteps(remoteRobot).goToLineAndColumn(10,33)
+                if (remoteRobot.isMac()) keyboard { hotKey(VK_META, VK_L) }
+                else keyboard { hotKey(VK_CONTROL, VK_G) }
+                keyboard { enterText("10:33") }
+                closeDialog()
             }
             step("Open Action3 (Display Active Component UI Info) via Tool Menu") {
                 keyboard { hotKey(VK_CONTROL, VK_ALT, VK_BACK_SLASH) }
                 dialog("Action3 (Display Active Component UI Info)") {
-                    val messageText = find<JTextFieldFixture>(byXpath("//div[contains(@visible_text, 'Selected')]"), ofSeconds(2))
+                    val messageText =
+                        find<JTextFieldFixture>(byXpath("//div[contains(@visible_text, 'Selected')]"), ofSeconds(2))
                     Assertions.assertNotNull(messageText)
                     Assertions.assertEquals(3, messageText.retrieveData().textDataList.size)
                     Assertions.assertEquals("Selected UI Component:", messageText.retrieveData().textDataList[0].text)

@@ -1,71 +1,76 @@
 package org.qatest.plugin.demo.utils
 
 import com.intellij.remoterobot.RemoteRobot
-import com.intellij.remoterobot.fixtures.ComponentFixture
-import com.intellij.remoterobot.fixtures.dataExtractor.contains
+import com.intellij.remoterobot.fixtures.ActionButtonFixture
 import com.intellij.remoterobot.search.locators.byXpath
 import com.intellij.remoterobot.stepsProcessing.step
-import com.intellij.remoterobot.utils.Keyboard
-import com.intellij.remoterobot.utils.hasSingleComponent
-import com.intellij.remoterobot.utils.waitFor
-import java.awt.event.KeyEvent
-import java.time.Duration
+import com.intellij.remoterobot.utils.keyboard
+import java.awt.event.KeyEvent.*
+import java.time.Duration.ofSeconds
 
 class UiTestSharedSteps(private val remoteRobot: RemoteRobot) {
-    private val keyboard = Keyboard(remoteRobot)
 
     fun createNewCommandLineProject() {
         step("Create New Project", Runnable {
             val welcomeFrame: WelcomeFrameFixture =
-                remoteRobot.find(WelcomeFrameFixture::class.java, Duration.ofSeconds(10))
+                remoteRobot.find(WelcomeFrameFixture::class.java, ofSeconds(10))
             welcomeFrame.createNewProjectLink().click()
 
             val newProjectDialog: DialogFixture = welcomeFrame.find(
                 DialogFixture::class.java,
                 DialogFixture.byTitle("New Project"),
-                Duration.ofSeconds(20)
+                ofSeconds(20)
             )
             newProjectDialog.findText("Java").click()
             newProjectDialog.button("Create").click()
         })
     }
 
-//    fun closeTipOfTheDay() {
-//        step("Close Tip of the Day if it appears", Runnable {
-//            waitFor(Duration.ofSeconds(20)) {
-//                remoteRobot.findAll<T>(
-//                    DialogFixture::class.java,
-//                    byXpath("//div[@class='MyDialog'][.//div[@text='Running startup activities...']]")
-//                ).size == 0
-//            }
-//            val idea: IdeaFrame = remoteRobot.find(IdeaFrame::class.java, Duration.ofSeconds(10))
-//            idea.dumbAware {
-//                try {
-//                    idea.find(DialogFixture::class.java, byTitle("Tip of the Day")).button("Close").click()
-//                } catch (ignore: Throwable) {
-//                }
-//                Unit
-//            }
-//        })
-//    }
-
-    fun autocomplete(text: String) {
-        step("Autocomplete '$text'", Runnable {
-            val completionMenu = byXpath("//div[@class='HeavyWeightWindow']//div[@class='LookupList']")
-            val keyboard = Keyboard(remoteRobot)
-            keyboard.enterText(text)
-            waitFor(Duration.ofSeconds(10)) { remoteRobot.hasSingleComponent(completionMenu) }
-            remoteRobot.find(ComponentFixture::class.java, completionMenu)
-                .findText(contains(text))
-                .click()
-            keyboard.enter()
-        })
+    fun goToLineAndColumn(row: Int, column: Int) = with(remoteRobot) {
+        idea {
+            if (remoteRobot.isMac()) keyboard { hotKey(VK_META, VK_L) }
+            else keyboard { hotKey(VK_CONTROL, VK_G) }
+            keyboard { enterText("$row:$column") }
+            closeDialog()
+        }
     }
 
-    fun goToLineAndColumn(row: Int, column: Int) {
-        if (remoteRobot.isMac()) keyboard.hotKey(KeyEvent.VK_META, KeyEvent.VK_L)
-        else keyboard.hotKey(KeyEvent.VK_CONTROL, KeyEvent.VK_G)
-        keyboard.enterText("$row:$column")
-        keyboard.enter()
+    fun closeDialog() = try {
+        remoteRobot.find<ActionButtonFixture>(
+            byXpath("//div[@text='OK']"),
+            ofSeconds(5)
+        ).click()
+    } catch (ignore: Exception) {
+        // if dialog is already closed or not opened then "OK" button not found
+    }
+
+    fun openAction1(viaToolMenu: Boolean = false) = with(remoteRobot) {
+        idea {
+            if (remoteRobot.isMac() || viaToolMenu) {
+                menuBar.select("Tools", "QaAssignmentTest", "Action1 (Display Version)")
+            } else {
+                keyboard { hotKey(VK_CONTROL, VK_ALT, VK_DIVIDE) }
+            }
+        }
+    }
+
+    fun openAction2(viaToolMenu: Boolean = false) = with(remoteRobot) {
+        idea {
+            if (remoteRobot.isMac() || viaToolMenu) {
+                menuBar.select("Tools", "QaAssignmentTest", "Action2 (Display Gutters)")
+            } else {
+                keyboard { hotKey(VK_CONTROL, VK_ALT, VK_MULTIPLY) }
+            }
+        }
+    }
+
+    fun openAction3(viaToolMenu: Boolean = false) = with(remoteRobot) {
+        idea {
+            if (remoteRobot.isMac() || viaToolMenu) {
+                menuBar.select("Tools", "QaAssignmentTest", "Action3 (Display Active Component UI Info)")
+            } else {
+                keyboard { hotKey(VK_CONTROL, VK_ALT, VK_BACK_SLASH) }
+            }
+        }
     }
 }

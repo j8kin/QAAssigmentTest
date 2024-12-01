@@ -1,7 +1,6 @@
 package org.qatest.plugin.demo
 
 import com.intellij.remoterobot.RemoteRobot
-import com.intellij.remoterobot.fixtures.ActionButtonFixture
 import com.intellij.remoterobot.fixtures.GutterIcon
 import com.intellij.remoterobot.fixtures.JLabelFixture
 import com.intellij.remoterobot.fixtures.JTextFieldFixture
@@ -22,15 +21,17 @@ import java.time.Duration.ofSeconds
 class QaAssignmentTestPluginTestProjectOpen {
     companion object {
         private lateinit var remoteRobot: RemoteRobot
+        private lateinit var uiTestHelper: UiTestSharedSteps
 
         @JvmStatic
         @BeforeAll
         fun startUp() {
             remoteRobot = RemoteRobot("http://localhost:8082")
+            uiTestHelper = UiTestSharedSteps(remoteRobot)
 
             with(remoteRobot) {
                 welcomeFrame {
-                    UiTestSharedSteps(remoteRobot).createNewCommandLineProject()
+                    uiTestHelper.createNewCommandLineProject()
                 }
                 idea {
                     // wait till project opened and indexed
@@ -88,14 +89,7 @@ class QaAssignmentTestPluginTestProjectOpen {
      *   even if test is failed then dialog will be closed
      */
     @AfterEach
-    fun closeDialog() = try {
-        remoteRobot.find<ActionButtonFixture>(
-            byXpath("//div[@text='OK']"),
-            ofSeconds(5)
-        ).click()
-    } catch (ignore: Exception) {
-        // if dialog is already closed or not opened then "OK" button not found
-    }
+    fun closeDialog() = uiTestHelper.closeDialog()
 
     /***********************************************************************/
     /** QA Assignment Test: Action 1                                      **/
@@ -104,7 +98,7 @@ class QaAssignmentTestPluginTestProjectOpen {
     fun testPluginAction1() = with(remoteRobot) {
         idea {
             step("Open dialog: QaAssignmentTestAction1") {
-                keyboard { hotKey(VK_CONTROL, VK_ALT, VK_DIVIDE) }
+                uiTestHelper.openAction1()
                 dialog("Action1 (Display Version)") {
                     val messageText = findText { (text) -> text.contains("Kotlin Plugin version:") }
                     Assertions.assertNotNull(messageText)
@@ -123,7 +117,8 @@ class QaAssignmentTestPluginTestProjectOpen {
         idea {
             step("Open dialog: QaAssignmentTestAction1 via Tool Menu") {
                 // verify that dialog is available from Tool-> QaAssignmentTest -> Action1 (Display Version)
-                menuBar.select("Tools", "QaAssignmentTest", "Action1 (Display Version)")
+                //menuBar.select("Tools", "QaAssignmentTest", "Action1 (Display Version)")
+                uiTestHelper.openAction1(true)
                 dialog("Action1 (Display Version)") {
                     val messageText = findText { (text) -> text.contains("Kotlin Plugin version:") }
                     Assertions.assertNotNull(messageText)
@@ -150,7 +145,7 @@ class QaAssignmentTestPluginTestProjectOpen {
             }
             step("Open dialog: QaAssignmentTestAction2 via Tool Menu") {
                 // verify that dialog is available from Tool-> QaAssignmentTest -> Action1 (Display Version)
-                menuBar.select("Tools", "QaAssignmentTest", "Action2 (Display Gutters)")
+                uiTestHelper.openAction2(true)
                 dialog("Action2 (Display Gutters)") {
                     val listOfIcons =
                         findAll<JLabelFixture>(byXpath("//div[@name='OptionPane.body']//div[@class='JLabel']"))
@@ -176,7 +171,7 @@ class QaAssignmentTestPluginTestProjectOpen {
                 }
             }
             step("Open dialog: QaAssignmentTestAction2") {
-                keyboard { hotKey(VK_CONTROL, VK_ALT, VK_MULTIPLY) }
+                uiTestHelper.openAction2()
                 dialog("Action2 (Display Gutters)") {
                     val listOfIcons =
                         findAll<JLabelFixture>(byXpath("//div[@name='OptionPane.body']//div[@class='JLabel']"))
@@ -207,13 +202,13 @@ class QaAssignmentTestPluginTestProjectOpen {
                 }
             }
             step("Open dialog: QaAssignmentTestAction2") {
-                keyboard { hotKey(VK_CONTROL, VK_ALT, VK_MULTIPLY) }
+                uiTestHelper.openAction2()
                 dialog("Action2 (Display Gutters)") {
                     listOfIcons =
                         findAll<JLabelFixture>(byXpath("//div[@name='OptionPane.body']//div[@class='JLabel']"))
 
                     // close dialog to be able to remove breakpoint and bookmark to avoid unexpected case dependency
-                    closeDialog()
+                    uiTestHelper.closeDialog()
                 }
             }
             step("Cleanup Additional Icons to avoid case dependency") {
@@ -246,7 +241,7 @@ class QaAssignmentTestPluginTestProjectOpen {
             }
             var messageText: String? = null
             step("Open dialog: QaAssignmentTestAction2") {
-                keyboard { hotKey(VK_CONTROL, VK_ALT, VK_MULTIPLY) }
+                uiTestHelper.openAction2()
                 dialog("Action2 (Display Gutters)") {
                     messageText = findText { (text) -> text.contains("File: ") }.text
 
@@ -269,7 +264,7 @@ class QaAssignmentTestPluginTestProjectOpen {
             keyboard { hotKey(VK_CONTROL, VK_F4) }
         }
         step("Open dialog: QaAssignmentTestAction2") {
-            keyboard { hotKey(VK_CONTROL, VK_ALT, VK_MULTIPLY) }
+            uiTestHelper.openAction2()
             idea {
                 dialog("Action2 (Display Gutters)") {
                     val messageText = findText { (text) -> text.contains("There are no opened project files") }
@@ -300,7 +295,7 @@ class QaAssignmentTestPluginTestProjectOpen {
             }
             step("Open Action3 (Display Active Component UI Info) via Tool Menu") {
                 // verify that dialog is available from Tool-> QaAssignmentTest -> Action3 (Display Active Component UI Info)
-                menuBar.select("Tools", "QaAssignmentTest", "Action3 (Display Active Component UI Info)")
+                uiTestHelper.openAction3(true)
                 dialog("Action3 (Display Active Component UI Info)") {
                     val messageText =
                         find<JTextFieldFixture>(byXpath("//div[contains(@visible_text, 'Selected')]"), ofSeconds(2))
@@ -323,7 +318,7 @@ class QaAssignmentTestPluginTestProjectOpen {
                 }
             }
             step("Open Action3 (Display Active Component UI Info)") {
-                keyboard { hotKey(VK_CONTROL, VK_ALT, VK_BACK_SLASH) }
+                uiTestHelper.openAction3()
                 dialog("Action3 (Display Active Component UI Info)") {
                     val messageText = findText { (text) -> text.contains("No selected UI Component") }
                     Assertions.assertNotNull(messageText)
@@ -347,7 +342,7 @@ class QaAssignmentTestPluginTestProjectOpen {
                 }
             }
             step("Open Action3 (Display Active Component UI Info)") {
-                keyboard { hotKey(VK_CONTROL, VK_ALT, VK_BACK_SLASH) }
+                uiTestHelper.openAction3()
                 dialog("Action3 (Display Active Component UI Info)") {
                     val messageText =
                         find<JTextFieldFixture>(byXpath("//div[contains(@visible_text, 'Selected')]"), ofSeconds(2))
@@ -375,13 +370,10 @@ class QaAssignmentTestPluginTestProjectOpen {
     fun testPluginAction3SelectEditorUiComponent() = with(remoteRobot) {
         idea {
             step("Select ui component in editor") {
-                if (remoteRobot.isMac()) keyboard { hotKey(VK_META, VK_L) }
-                else keyboard { hotKey(VK_CONTROL, VK_G) }
-                keyboard { enterText("10:33") }
-                closeDialog()
+                uiTestHelper.goToLineAndColumn(10, 33)
             }
             step("Open Action3 (Display Active Component UI Info) via Tool Menu") {
-                keyboard { hotKey(VK_CONTROL, VK_ALT, VK_BACK_SLASH) }
+                uiTestHelper.openAction3()
                 dialog("Action3 (Display Active Component UI Info)") {
                     val messageText =
                         find<JTextFieldFixture>(byXpath("//div[contains(@visible_text, 'Selected')]"), ofSeconds(2))

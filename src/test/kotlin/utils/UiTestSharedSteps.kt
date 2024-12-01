@@ -30,6 +30,7 @@ class UiTestSharedSteps(private val remoteRobot: RemoteRobot) {
         idea {
             if (remoteRobot.isMac()) keyboard { hotKey(VK_META, VK_L) }
             else keyboard { hotKey(VK_CONTROL, VK_G) }
+
             keyboard { enterText("$row:$column") }
             closeDialog()
         }
@@ -48,9 +49,7 @@ class UiTestSharedSteps(private val remoteRobot: RemoteRobot) {
         idea {
             if (remoteRobot.isMac() || viaToolMenu) {
                 menuBar.select("Tools", "QaAssignmentTest", "Action1 (Display Version)")
-            } else {
-                keyboard { hotKey(VK_CONTROL, VK_ALT, VK_DIVIDE) }
-            }
+            } else keyboard { hotKey(VK_CONTROL, VK_ALT, VK_DIVIDE) }
         }
     }
 
@@ -58,9 +57,7 @@ class UiTestSharedSteps(private val remoteRobot: RemoteRobot) {
         idea {
             if (remoteRobot.isMac() || viaToolMenu) {
                 menuBar.select("Tools", "QaAssignmentTest", "Action2 (Display Gutters)")
-            } else {
-                keyboard { hotKey(VK_CONTROL, VK_ALT, VK_MULTIPLY) }
-            }
+            } else keyboard { hotKey(VK_CONTROL, VK_ALT, VK_MULTIPLY) }
         }
     }
 
@@ -68,9 +65,28 @@ class UiTestSharedSteps(private val remoteRobot: RemoteRobot) {
         idea {
             if (remoteRobot.isMac() || viaToolMenu) {
                 menuBar.select("Tools", "QaAssignmentTest", "Action3 (Display Active Component UI Info)")
-            } else {
-                keyboard { hotKey(VK_CONTROL, VK_ALT, VK_BACK_SLASH) }
-            }
+            } else keyboard { hotKey(VK_CONTROL, VK_ALT, VK_BACK_SLASH) }
+        }
+    }
+
+    fun toggleBreakpoint() = with(remoteRobot) {
+        idea {
+            if (isMac()) keyboard { hotKey(VK_META, VK_F8) }
+            else keyboard { hotKey(VK_CONTROL, VK_F8) }
+        }
+    }
+
+    fun toggleBookmark() = with(remoteRobot) {
+        idea {
+            if (isMac()) keyboard { hotKey(VK_F3) }
+            else keyboard { hotKey(VK_F11) }
+        }
+    }
+
+    fun closeEditorActiveTab() = with(remoteRobot) {
+        idea {
+            if (isMac()) keyboard { hotKey(VK_META, VK_W) }
+            else keyboard { hotKey(VK_CONTROL, VK_F4) }
         }
     }
 }

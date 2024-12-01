@@ -13,7 +13,6 @@ import org.assertj.swing.core.MouseButton
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
 import org.qatest.plugin.demo.utils.*
-import java.awt.event.KeyEvent.*
 import java.time.Duration.ofMinutes
 import java.time.Duration.ofSeconds
 
@@ -117,7 +116,6 @@ class QaAssignmentTestPluginTestProjectOpen {
         idea {
             step("Open dialog: QaAssignmentTestAction1 via Tool Menu") {
                 // verify that dialog is available from Tool-> QaAssignmentTest -> Action1 (Display Version)
-                //menuBar.select("Tools", "QaAssignmentTest", "Action1 (Display Version)")
                 uiTestHelper.openAction1(true)
                 dialog("Action1 (Display Version)") {
                     val messageText = findText { (text) -> text.contains("Kotlin Plugin version:") }
@@ -195,9 +193,8 @@ class QaAssignmentTestPluginTestProjectOpen {
             step("Add breakpoint and bookmark on line with void main() function") {
                 with(textEditor()) {
                     editor.findText("static").click()
-                    keyboard { hotKey(VK_CONTROL, VK_F8) } // set breakpoint
-                    keyboard { hotKey(VK_CONTROL, VK_SHIFT, VK_3) } // set bookmark (3)
-
+                    uiTestHelper.toggleBreakpoint()
+                    uiTestHelper.toggleBookmark()
                     listOfGutters = gutter.getIcons()
                 }
             }
@@ -214,8 +211,8 @@ class QaAssignmentTestPluginTestProjectOpen {
             step("Cleanup Additional Icons to avoid case dependency") {
                 with(textEditor()) {
                     editor.findText("main").click()
-                    keyboard { hotKey(VK_CONTROL, VK_F8) } // set breakpoint
-                    keyboard { hotKey(VK_CONTROL, VK_SHIFT, VK_3) } // set bookmark (3)
+                    uiTestHelper.toggleBreakpoint()
+                    uiTestHelper.toggleBookmark()
                 }
             }
             step("Verify list of Icons in QaAssignmentTestAction2") {
@@ -249,7 +246,7 @@ class QaAssignmentTestPluginTestProjectOpen {
                 }
             }
             step("Close noGutter.txt to avoid case dependency") {
-                keyboard { hotKey(VK_CONTROL, VK_F4) }
+                uiTestHelper.closeEditorActiveTab()
             }
             step("Verify Action2 dialog text") {
                 Assertions.assertNotNull(messageText)
@@ -261,7 +258,7 @@ class QaAssignmentTestPluginTestProjectOpen {
     @Test
     fun testPluginAction2NoOpenedFiles() = with(remoteRobot) {
         step("Close Main.java") {
-            keyboard { hotKey(VK_CONTROL, VK_F4) }
+            uiTestHelper.closeEditorActiveTab()
         }
         step("Open dialog: QaAssignmentTestAction2") {
             uiTestHelper.openAction2()

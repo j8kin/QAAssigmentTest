@@ -56,3 +56,6 @@ Here, I verify only some UI components in the ProjectTreeView and the File Edito
 2. Project Tree View:
    1. Select any folder in the project tree view and observe that the dialog contains information like: "PsiDirectory:$FullPath$".
    2. Select a class file in the project tree view and observe that the dialog contains: "PsiClass:$ClassName$".
+## Test Results
+After test execution tests results are located in /build/reports/tests/test/packages/org.qatest.plugin.demo.html
+![Tests Execution Results example](docs/testresults.png)
